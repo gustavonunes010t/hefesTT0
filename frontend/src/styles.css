@@ -1,12 +1,21 @@
+/* CORES BASEADAS NO INSTAGRAM */
 :root {
-  --verde: #6BA368;
-  --marrom: #8B5E3C;
-  --vermelho: #A44A3F;
-  --fundo: #F5F3EF;
+  --verde: #4f6f52;
+  --barro: #a45c40;
+  --bege: #f4f1ec;
+  --texto: #2b2b2b;
 }
 
+/* RESET */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: var(--fundo);
+  background: var(--bege);
+  font-family: 'Inter', sans-serif;
+  color: var(--texto);
+}
+
+/* TÍTULOS ESTILO ARQUITETURA */
+h1, h2, h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
 }
