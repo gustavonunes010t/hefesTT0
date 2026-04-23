@@ -1,0 +1,12 @@
+:root {
+  --verde: #6BA368;
+  --marrom: #8B5E3C;
+  --vermelho: #A44A3F;
+  --fundo: #F5F3EF;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--fundo);
+}
