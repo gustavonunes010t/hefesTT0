@@ -1,21 +1,116 @@
-/* CORES BASEADAS NO INSTAGRAM */
+/* ============================================
+   DESIGN SYSTEM HEFESTTO
+   Cores, tipografia e componentes reutilizáveis
+   ============================================ */
+
 :root {
-  --verde: #4f6f52;
-  --barro: #a45c40;
-  --bege: #f4f1ec;
-  --texto: #2b2b2b;
+  /* PALETA DE CORES */
+  --green-deep: #2C5F2D;
+  --green-leaf: #4A7C59;
+  --green-soft: #97BC62;
+  --brown-earth: #5C4033;
+  --brown-warm: #8B5A2B;
+  --bg-light: #F8F5F0;
+  --bg-card: #FFFFFF;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-light: #FFFFFF;
+  
+  /* BORDAS E SOMBRAS */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(44, 95, 45, 0.08);
+  --shadow-md: 0 6px 16px rgba(44, 95, 45, 0.12);
+  --shadow-lg: 0 12px 28px rgba(44, 95, 45, 0.18);
+  
+  /* ANIMAÇÕES */
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-luxury: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* RESET */
-body {
-  margin: 0;
-  background: var(--bege);
-  font-family: 'Inter', sans-serif;
-  color: var(--texto);
+/* TIPOGRAFIA */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: var(--green-deep);
+  letter-spacing: -0.02em;
 }
 
-/* TÍTULOS ESTILO ARQUITETURA */
-h1, h2, h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 500;
+/* GRID DE PROJETOS */
+.projects-section {
+  padding: 100px 5%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+/* CARD DE PROJETO */
+.project-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.5s var(--ease-luxury), box-shadow 0.5s var(--ease-luxury);
+}
+
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.project-card img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease-smooth);
+}
+
+.project-card:hover img {
+  transform: scale(1.06);
+}
+
+/* OVERLAY DO CARD */
+.project-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px;
+  background: linear-gradient(to top, rgba(28, 42, 28, 0.85) 0%, rgba(28, 42, 28, 0) 70%);
+  color: var(--text-light);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
+}
+
+.project-card:hover .project-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-overlay h3 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+  color: var(--text-light);
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .projects-section {
+    padding: 60px 4%;
+  }
+  
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
 }
