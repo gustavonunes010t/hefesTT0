@@ -1,43 +1,66 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../services/api";
 
-// Hook personalizado para gerenciar projetos
+const requestProjects = async () => {
+  const response = await api.get("/projects");
+  return response.data.projects || response.data || [];
+};
+
 export default function useProjects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Busca projetos ao montar o componente
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.get("/projects");
-      // Ajusta conforme estrutura da resposta do backend
-      setProjects(response.data.projects || response.data);
+      setProjects(await requestProjects());
       setError(null);
     } catch (err) {
       setError("Erro ao carregar projetos: " + err.message);
-      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Adiciona novo projeto
+  useEffect(() => {
+    let active = true;
+
+    const loadProjects = async () => {
+      try {
+        const projectList = await requestProjects();
+
+        if (active) {
+          setProjects(projectList);
+          setError(null);
+        }
+      } catch (err) {
+        if (active) {
+          setError("Erro ao carregar projetos: " + err.message);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadProjects();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const addProject = async (projectData) => {
     const response = await api.post("/projects", projectData);
-    setProjects(prev => [response.data.project, ...prev]);
+    setProjects((prev) => [response.data.project, ...prev]);
     return response.data;
   };
 
-  // Remove projeto
   const deleteProject = async (id) => {
     await api.delete(`/projects/${id}`);
-    setProjects(prev => prev.filter(p => p._id !== id));
+    setProjects((prev) => prev.filter((project) => project._id !== id));
   };
 
   return { projects, loading, error, fetchProjects, addProject, deleteProject };

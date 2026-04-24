@@ -1,29 +1,50 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import { AUTO_CREATE_ADMIN, CORS_ORIGINS, MONGO_URI, PORT } from "./config.js";
+import { ensureDefaultAdmin } from "./services/ensureDefaultAdmin.js";
 
-// ✅ MOVA PARA CÁ:
 import authRoutes from "./routes/auth.js";
 import projectRoutes from "./routes/projects.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+const databaseStates = ["disconnected", "connected", "connecting", "disconnecting"];
 
-// middlewares
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: CORS_ORIGINS.length > 0 ? CORS_ORIGINS : true
+}));
+app.use(express.json({ limit: "1mb" }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ ROTAS ANTES DO LISTEN
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    status: "ok",
+    database: databaseStates[mongoose.connection.readyState] || "unknown"
+  });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 
-// conexão Mongo
-mongoose.connect("mongodb://127.0.0.1:27017/hefestto")
-.then(() => console.log("MongoDB conectado"))
-.catch(err => console.log(err));
+mongoose
+  .connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+  .then(async () => {
+    console.log("MongoDB conectado");
 
-// servidor
-app.listen(5000, () => {
-  console.log("Servidor rodando em http://localhost:5000");
+    if (AUTO_CREATE_ADMIN) {
+      await ensureDefaultAdmin();
+    }
+  })
+  .catch((error) => {
+    console.error("Erro ao conectar ao MongoDB:", error.message);
+  });
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
-
-// ❌ APAGUE essas duas linhas de baixo (já foram movidas)

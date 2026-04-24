@@ -1,5 +1,18 @@
 import mongoose from "mongoose";
 
+const urlPathPattern = /^(https?:\/\/.+|\/uploads\/.+)$/;
+
+const createSlug = (title) => {
+  const slug = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+
+  return slug || `projeto-${Date.now()}`;
+};
+
 const projectSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -11,8 +24,7 @@ const projectSchema = new mongoose.Schema({
     type: String,
     unique: true,
     lowercase: true,
-    trim: true,
-    index: true // Index inline (mais limpo)
+    trim: true
   },
   location: {
     type: String,
@@ -22,14 +34,17 @@ const projectSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true,
+    default: "",
     maxlength: [1000, "Descrição não pode exceder 1000 caracteres"]
   },
   images: [{
-    url: { 
-      type: String, 
+    url: {
+      type: String,
       required: true,
-      // Validação básica de URL
-      match: [/^https?:\/\/.+/, "URL de imagem inválida"]
+      validate: {
+        validator: (value) => urlPathPattern.test(value),
+        message: "URL de imagem inválida"
+      }
     },
     publicId: String,
     alt: String
@@ -37,59 +52,52 @@ const projectSchema = new mongoose.Schema({
   videoUrl: {
     type: String,
     default: "",
-    match: [/^https?:\/\/.+/, "URL de vídeo inválida"]
+    validate: {
+      validator: (value) => !value || urlPathPattern.test(value),
+      message: "URL de vídeo inválida"
+    }
   },
   featured: {
     type: Boolean,
     default: false,
-    index: true // Útil para filtrar destaques
+    index: true
   }
-  // ✅ REMOVIDO: createdAt (timestamps: true já cuida disso)
 }, {
-  timestamps: true, // Cria createdAt e updatedAt automaticamente
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// ============================================
-// INDEXES PARA PERFORMANCE
-// ============================================
-projectSchema.index({ slug: 1 });
 projectSchema.index({ createdAt: -1 });
-projectSchema.index({ featured: -1, createdAt: -1 }); // Busca por destaques
+projectSchema.index({ featured: -1, createdAt: -1 });
 
-// ============================================
-// PRE-SAVE: GERA SLUG AUTOMÁTICO
-// ============================================
 projectSchema.pre("save", function(next) {
-  try {
-    if (this.isModified("title") && this.title) {
-      let slug = this.title
-        .toLowerCase()
-        .normalize("NFD") // Remove acentos
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-") // Substitui não-alfanuméricos por -
-        .replace(/(^-|-$)+/g, ""); // Remove - do início/fim
-      
-      // Garante que o slug não fique vazio
-      this.slug = slug || `projeto-${Date.now()}`;
-    }
-    next();
-  } catch (error) {
-    next(error);
+  if (this.isModified("title") && this.title) {
+    this.slug = createSlug(this.title);
   }
+
+  next();
 });
 
-// ============================================
-// MÉTODO UTILITÁRIO: Verificar se tem mídia
-// ============================================
+projectSchema.pre("findOneAndUpdate", function(next) {
+  const update = this.getUpdate();
+  const title = update?.title || update?.$set?.title;
+
+  if (title) {
+    if (update.$set) {
+      update.$set.slug = createSlug(title);
+    } else {
+      update.slug = createSlug(title);
+    }
+  }
+
+  next();
+});
+
 projectSchema.methods.hasMedia = function() {
   return this.images?.length > 0 || !!this.videoUrl;
 };
 
-// ============================================
-// MÉTODO UTILITÁRIO: Imagem de capa (thumbnail)
-// ============================================
 projectSchema.methods.getThumbnail = function() {
   return this.images?.[0]?.url || null;
 };

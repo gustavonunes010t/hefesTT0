@@ -1,37 +1,34 @@
 import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../config.js";
 
-// Middleware para verificar token JWT
 export const verifyToken = (req, res, next) => {
-  // Pega token do header Authorization: Bearer <token>
-  const token = req.headers.authorization?.split(" ")[1];
-  
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      error: "Acesso negado. Token não fornecido." 
+  const [type, token] = req.headers.authorization?.split(" ") || [];
+
+  if (type !== "Bearer" || !token) {
+    return res.status(401).json({
+      success: false,
+      error: "Acesso negado. Token não fornecido."
     });
   }
-  
+
   try {
-    // Verifica e decodifica o token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Adiciona dados do usuário à requisição
+    req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch (error) {
-    res.status(401).json({ 
-      success: false, 
-      error: "Token inválido ou expirado." 
+    res.status(401).json({
+      success: false,
+      error: "Token inválido ou expirado."
     });
   }
 };
 
-// Middleware para verificar se é admin
 export const verifyAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ 
-      success: false, 
-      error: "Acesso restrito a administradores." 
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      error: "Acesso restrito a administradores."
     });
   }
+
   next();
 };

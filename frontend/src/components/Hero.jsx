@@ -1,33 +1,33 @@
+import heroImage from "../assets/hero.png";
+import { contactInfo } from "../config/contact";
+
 export default function Hero() {
   return (
-    <section style={{
-      height: "80vh",
-      background: "linear-gradient(180deg, rgba(28,42,28,0.65) 0%, rgba(28,42,28,0) 60%), url('/hero-bg.jpg') center/cover",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      textAlign: "center",
-      color: "#fff",
-      padding: "0 5%"
-    }}>
-      <div>
-        <h1 style={{
-          fontSize: "4rem",
-          marginBottom: "20px",
-          fontFamily: "'Playfair Display', serif",
-          textShadow: "0 4px 12px rgba(0,0,0,0.3)"
-        }}>
-          Arquitetura que Inspira
-        </h1>
-        <p style={{
-          fontSize: "1.3rem",
-          maxWidth: "600px",
-          margin: "0 auto",
-          opacity: 0.95
-        }}>
-          Transformando espaços em experiências únicas, 
-          onde natureza e sofisticação se encontram.
+    <section
+      className="hero"
+      style={{ backgroundImage: `linear-gradient(90deg, rgba(30, 45, 29, 0.86) 0%, rgba(58, 76, 49, 0.52) 48%, rgba(30, 45, 29, 0.18) 100%), url(${heroImage})` }}
+    >
+      <div className="hero-content">
+        <span className="hero-kicker">Anápolis GO + à distância</span>
+        <h1>Arquitetura feita com tempo, intenção e cuidado.</h1>
+        <p>
+          Projetos que transformam rotina em aconchego: luz quente, materiais naturais
+          e soluções pensadas para viver melhor.
         </p>
+
+        <div className="hero-actions">
+          <a className="primary-button" href={contactInfo.whatsappUrl} target="_blank" rel="noreferrer">
+            Orçamento pelo WhatsApp
+          </a>
+          <a className="ghost-button light" href="#projetos">
+            Ver projetos
+          </a>
+        </div>
+
+        <div className="hero-signature">
+          <strong>Design por @{contactInfo.instagram}</strong>
+          <span>Residencial, comercial e interiores com alma brasileira.</span>
+        </div>
       </div>
     </section>
   );

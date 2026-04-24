@@ -1,10 +1,12 @@
-/**
- * Utilitário para otimizar/formatar imagens
- * (Pode ser expandido para compressão, redimensionamento, etc.)
- */
+import { API_ORIGIN } from "../services/api";
+
+export const PLACEHOLDER_IMAGE = "/images/projeto1.png";
 
 export const formatImageUrl = (url) => {
-  if (!url) return "/placeholder.jpg";
+  if (!url) return PLACEHOLDER_IMAGE;
+  if (/^(https?:|data:|blob:)/.test(url)) return url;
+  if (url.startsWith("/uploads/")) return `${API_ORIGIN}${url}`;
+
   return url;
 };
 
@@ -15,7 +17,7 @@ export const getImageExtension = (url) => {
 
 export const isVideo = (url) => {
   if (!url) return false;
+
   const videoExts = ["mp4", "webm", "ogg"];
-  const ext = getImageExtension(url);
-  return videoExts.includes(ext);
+  return videoExts.includes(getImageExtension(url).toLowerCase());
 };
