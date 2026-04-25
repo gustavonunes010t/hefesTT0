@@ -3,35 +3,35 @@ import mongoose from "mongoose";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import { AUTO_CREATE_ADMIN, CORS_ORIGINS, MONGO_URI, PORT } from "./config.js";
+
+import { AUTO_CREATE_ADMIN, MONGO_URI, PORT } from "./config.js";
 import { ensureDefaultAdmin } from "./services/ensureDefaultAdmin.js";
 
 import authRoutes from "./routes/auth.js";
 import projectRoutes from "./routes/projects.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+// 🔥 PRIMEIRO: criar o app
 const app = express();
-const databaseStates = ["disconnected", "connected", "connecting", "disconnecting"];
 
-app.use(cors({
-  origin: CORS_ORIGINS.length > 0 ? CORS_ORIGINS : true
-}));
-app.use(express.json({ limit: "1mb" }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// 🔥 MIDDLEWARES
+app.use(cors());
+app.use(express.json());
 
-app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    status: "ok",
-    database: databaseStates[mongoose.connection.readyState] || "unknown"
-  });
-});
-
+// 🔥 ROTAS DA API
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 
+// 🔥 FRONTEND (produção - Vite build)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+
+// 🔥 BANCO
 mongoose
   .connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .then(async () => {
@@ -45,6 +45,7 @@ mongoose
     console.error("Erro ao conectar ao MongoDB:", error.message);
   });
 
+// 🔥 SERVIDOR
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
