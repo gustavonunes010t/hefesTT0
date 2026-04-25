@@ -8,13 +8,15 @@ import { ensureDefaultAdmin } from "./services/ensureDefaultAdmin.js";
 import authRoutes from "./routes/auth.js";
 import projectRoutes from "./routes/projects.js";
 
-// 🔥 APP
 const app = express();
 
-// 🔥 CORS (IMPORTANTE)
+// 🔥 CORS CORRIGIDO
 app.use(
   cors({
-    origin: "*"
+    origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
   })
 );
 
