@@ -45,3 +45,6 @@ mongoose
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+app.get("/api/teste", (req, res) => {
+  res.json({ funcionando: true });
+});
