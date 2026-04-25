@@ -1,8 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import { AUTO_CREATE_ADMIN, MONGO_URI, PORT } from "./config.js";
 import { ensureDefaultAdmin } from "./services/ensureDefaultAdmin.js";
@@ -10,26 +8,16 @@ import { ensureDefaultAdmin } from "./services/ensureDefaultAdmin.js";
 import authRoutes from "./routes/auth.js";
 import projectRoutes from "./routes/projects.js";
 
-// 🔥 PRIMEIRO: criar o app
+// 🔥 APP
 const app = express();
 
 // 🔥 MIDDLEWARES
 app.use(cors());
 app.use(express.json());
 
-// 🔥 ROTAS DA API
+// 🔥 ROTAS
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
-
-// 🔥 FRONTEND (produção - Vite build)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-});
 
 // 🔥 BANCO
 mongoose
@@ -45,7 +33,7 @@ mongoose
     console.error("Erro ao conectar ao MongoDB:", error.message);
   });
 
-// 🔥 SERVIDOR
+// 🔥 SERVIDOR (Render-ready)
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
