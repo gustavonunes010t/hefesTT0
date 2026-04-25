@@ -11,8 +11,14 @@ import projectRoutes from "./routes/projects.js";
 // 🔥 APP
 const app = express();
 
+// 🔥 CORS (IMPORTANTE)
+app.use(
+  cors({
+    origin: "*"
+  })
+);
+
 // 🔥 MIDDLEWARES
-app.use(cors());
 app.use(express.json());
 
 // 🔥 ROTAS
@@ -33,7 +39,7 @@ mongoose
     console.error("Erro ao conectar ao MongoDB:", error.message);
   });
 
-// 🔥 SERVIDOR (Render-ready)
+// 🔥 SERVIDOR
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
