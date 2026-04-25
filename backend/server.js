@@ -10,7 +10,9 @@ import projectRoutes from "./routes/projects.js";
 
 const app = express();
 
-// 🔥 CORS CORRIGIDO
+/* =========================
+   🔥 CORS (produção)
+========================= */
 app.use(
   cors({
     origin: true,
@@ -20,31 +22,52 @@ app.use(
   })
 );
 
-// 🔥 MIDDLEWARES
+/* =========================
+   🔥 MIDDLEWARES
+========================= */
 app.use(express.json());
 
-// 🔥 ROTAS
+/* =========================
+   🔥 ROTA DE TESTE (CRÍTICA)
+========================= */
+app.get("/api/teste", (req, res) => {
+  res.json({ funcionando: true });
+});
+
+/* =========================
+   🔥 ROTAS
+========================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 
-// 🔥 BANCO
+/* =========================
+   🔥 BANCO
+========================= */
 mongoose
-  .connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+  .connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 5000
+  })
   .then(async () => {
-    console.log("MongoDB conectado");
+    console.log("✅ MongoDB conectado");
 
     if (AUTO_CREATE_ADMIN) {
       await ensureDefaultAdmin();
     }
   })
   .catch((error) => {
-    console.error("Erro ao conectar ao MongoDB:", error.message);
+    console.error("❌ Erro MongoDB:", error.message);
   });
 
-// 🔥 SERVIDOR
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+/* =========================
+   🔥 HEALTH CHECK (Render usa)
+========================= */
+app.get("/", (req, res) => {
+  res.send("API online");
 });
-app.get("/api/teste", (req, res) => {
-  res.json({ funcionando: true });
+
+/* =========================
+   🔥 SERVIDOR
+========================= */
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
