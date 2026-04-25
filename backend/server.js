@@ -11,14 +11,16 @@ import projectRoutes from "./routes/projects.js";
 const app = express();
 
 /* =========================
-   🔥 CORS (produção)
+   🔥 CORS CORRETO (ESSENCIAL)
 ========================= */
 app.use(
   cors({
-    origin: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
+    origin: [
+      "http://localhost:5173",
+      "https://hefes-tt-0.vercel.app" // SEU FRONTEND
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
@@ -28,7 +30,7 @@ app.use(
 app.use(express.json());
 
 /* =========================
-   🔥 ROTA DE TESTE (CRÍTICA)
+   🔥 TESTE
 ========================= */
 app.get("/api/teste", (req, res) => {
   res.json({ funcionando: true });
@@ -41,33 +43,31 @@ app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 
 /* =========================
-   🔥 BANCO
-========================= */
-mongoose
-  .connect(MONGO_URI, {
-    serverSelectionTimeoutMS: 5000
-  })
-  .then(async () => {
-    console.log("✅ MongoDB conectado");
-
-    if (AUTO_CREATE_ADMIN) {
-      await ensureDefaultAdmin();
-    }
-  })
-  .catch((error) => {
-    console.error("❌ Erro MongoDB:", error.message);
-  });
-
-/* =========================
-   🔥 HEALTH CHECK (Render usa)
+   🔥 HEALTH CHECK
 ========================= */
 app.get("/", (req, res) => {
   res.send("API online");
 });
 
 /* =========================
-   🔥 SERVIDOR
+   🔥 BANCO
+========================= */
+mongoose
+  .connect(MONGO_URI)
+  .then(async () => {
+    console.log("MongoDB conectado");
+
+    if (AUTO_CREATE_ADMIN) {
+      await ensureDefaultAdmin();
+    }
+  })
+  .catch((err) => {
+    console.error("Erro Mongo:", err.message);
+  });
+
+/* =========================
+   🔥 SERVER
 ========================= */
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
